@@ -18483,7 +18483,7 @@ MonoBehaviour:
   mainRigid: {fileID: 674122860405286228}
   speed: 3
   jumpForce: 5
-  airBonTime: 5
+  airBonTime: 2
   distanseGround: 0.1
   charRagdoll: {fileID: 1482704546574384546}
   skinRagdollParent: {fileID: 1848341748334560163}
