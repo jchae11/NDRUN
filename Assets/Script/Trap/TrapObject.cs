@@ -36,10 +36,8 @@ public class TrapObject : MonoBehaviour
     //triger 체크된 콜라이더는 여기로 이벤트
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("OnTriggerEnter");
-
         if (other == null || (actioned && isOnceTrigger)) return;
-
+        
         //@TODO 캐릭터 인지 체크
 
         ActionEnterTrigger();
@@ -48,8 +46,6 @@ public class TrapObject : MonoBehaviour
     //triger 체크안된 콜라이더는 여기로 이벤트
     void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("OnCollisionEnter");
-
         if (collision == null || (actioned && isOnceTrigger)) return;
 
         //@TODO 캐릭터 인지 체크

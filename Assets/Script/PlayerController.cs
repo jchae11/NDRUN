@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [Range(1, 10)] public int speed = 2;    
     [Range(1, 10)] public int jumpForce = 5; //점프시 가할 힘
     [Range(0.1f, 5f)] public float airBonTime = 0.2f; //랙돌로 변경될 추락 시간 (몇 초이상 공중부터 데미지 처리)
+    public float deathlyForce = 500f;    //500이상 충돌은 죽음 처리
     float inAirTime;
     public float distanseGround = 0.1f;
     //
@@ -42,17 +43,21 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         instance = this;
-
         if (charRagdoll) charRagdoll.gameObject.SetActive(false);
         if (charAnimation) charAnimation.gameObject.SetActive(true);
 
         for (int i = 0; i < groundLayers.Count; i++)
             groundLayerIDs.Add(LayerMask.NameToLayer(groundLayers[i]));
 
-        for(int i=0; i < deathCheckJoints.Count; i++) 
-            deathCheckJoints[i].onBreakJoint = (GameObject go, float value) => {
-            Death();
-        };
+        for (int i = 0; i < deathCheckJoints.Count; i++)
+        {
+            if (deathCheckJoints[i] == null) continue;
+               deathCheckJoints[i].onBreakJoint = (GameObject go, float value) =>
+            {
+                Death();
+            };
+        }
+      
     }
 
     // Update is called once per frame
@@ -170,7 +175,7 @@ public class PlayerController : MonoBehaviour
     
     RaycastHit downRayHit = new RaycastHit();
     float GetDistanceDown() {
-        if (!Physics.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, out downRayHit, 100)) return 100;
+        if (!Physics.Raycast(transform.position + (Vector3.up * 0.2f), Vector3.down, out downRayHit, 100)) return 100;
 
         //무언가 아래 닿는게 있는 상태
         return Mathf.Abs(transform.position.y - downRayHit.point.y);
@@ -180,11 +185,18 @@ public class PlayerController : MonoBehaviour
     //충돌 처리
     private void OnCollisionEnter(Collision collision)
     {
+        if (isDeath) return;
         if (collision != null && collision.transform != null)
         {
             //랜딩 처리
             isJump = !groundLayerIDs.Contains(collision.transform.gameObject.layer);
             animator.SetBool("isGround", !isJump);
+            float impluse = collision.impulse.magnitude;
+            if (impluse > deathlyForce)
+                Death();
+
+            //Debug.Log("relativeVelocity >>" + collision.relativeVelocity.magnitude + " >> " + collision.gameObject.name);
+            Debug.Log("Impulse >> " + collision.impulse.magnitude);
 
             //즉사 오브젝트에 닿으면 죽음 처림 (태그로 구분)
             if (DataModel.instance.deathlyTag.Contains(collision.transform.tag))

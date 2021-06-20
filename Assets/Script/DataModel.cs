@@ -19,7 +19,7 @@ public class DataModel : MonoBehaviour
     public Transform originalStartPoint;
     Transform currentStartPoint;     //외부 세이브 포인트에 의해 변경됨
     public Transform endPoint;
-
+    
     public PlayerController playerPrefab;
 
     Transform ragdollParent; //시체 정리 쉽게 빈 오브젝트 만들어둠-
