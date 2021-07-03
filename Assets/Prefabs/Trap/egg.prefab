@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0713a2f8af5da7f44a15b06a0318fae3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  type: 3
   isOnceTrigger: 0
   actioned: 0
 --- !u!54 &9041346784327640943

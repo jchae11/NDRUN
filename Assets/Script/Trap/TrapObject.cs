@@ -6,8 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class TrapObject : MonoBehaviour
 {
-    public enum TRIGGER_TYPE { NONE, SAVE_POINT, END_POINT, DEATHLY, GRAVITY, DESTROY, SPAWN, ROTATE, ECT }
-    public TRIGGER_TYPE type;   // NONE, DEATHLY, GRAVITY 는 오버라이드 클래스 필요없음
+    public enum TRIGGER_TYPE { NONE, SAVE_POINT, END_POINT, DAMAGE, GRAVITY, DESTROY, SPAWN, ROTATE, DEATHLY, ECT }
+    public TRIGGER_TYPE type;   // NONE, DAMAGE, GRAVITY 는 오버라이드 클래스 필요없음
 
     public bool isOnceTrigger;  //한번만 체크하는 트리거인가
     [HideInInspector]
@@ -19,7 +19,7 @@ public class TrapObject : MonoBehaviour
     {
         if (type == TRIGGER_TYPE.GRAVITY || type == TRIGGER_TYPE.DESTROY || type == TRIGGER_TYPE.SAVE_POINT || type == TRIGGER_TYPE.END_POINT)
             isOnceTrigger = true;
-        if (type == TRIGGER_TYPE.DEATHLY)
+        if (type == TRIGGER_TYPE.DAMAGE)
             tag = DataModel.instance.deathlyTag.Count > 0 ? DataModel.instance.deathlyTag[0] : "";
     }
 
@@ -66,12 +66,14 @@ public class TrapObject : MonoBehaviour
                 if (isOnceTrigger) actioned = true;
             }
         }
+
         //세이브 포인트에 닿으면 시작지점 변경해줌
         if (type == TRIGGER_TYPE.SAVE_POINT)
         {
             DataModel.instance.SaveStartPoint(transform);
             actioned = true;
         }
+
         //엔드 포인트에 닿으면 게임 엔딩
         if (type == TRIGGER_TYPE.SAVE_POINT)
         {

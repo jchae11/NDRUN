@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     public float deathlyForce = 500f;    //500이상 충돌은 죽음 처리
     float inAirTime;
     public float distanseGround = 0.1f;
+    float hp;
+    public float maxHP = 500; //== deathlyForce
     //
 
     public GameObject charRagdoll;
@@ -42,6 +44,9 @@ public class PlayerController : MonoBehaviour
     //기본 세팅
     void Start()
     {
+        maxHP = deathlyForce;
+        hp = maxHP;
+
         instance = this;
         if (charRagdoll) charRagdoll.gameObject.SetActive(false);
         if (charAnimation) charAnimation.gameObject.SetActive(true);
@@ -64,7 +69,10 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (DataModel.instance == null) return;
-        
+
+        if ( ! isDeath && hp < maxHP)
+            hp += (Time.deltaTime * maxHP * 0.12f);   //hp 자동 회복 (5초 풀 회복)
+
         Move();
 
         if (Input.GetKey(DataModel.instance.jumpKey))
@@ -102,6 +110,7 @@ public class PlayerController : MonoBehaviour
 
         ChangeRagdoll();
         DataModel.instance.ReStartGame();
+
     }
 
     #region 랙돌 변경
@@ -186,26 +195,37 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (isDeath) return;
+
         if (collision != null && collision.transform != null)
         {
             //랜딩 처리
             isJump = !groundLayerIDs.Contains(collision.transform.gameObject.layer);
             animator.SetBool("isGround", !isJump);
+
             float impluse = collision.impulse.magnitude;
-            if (impluse > deathlyForce)
+            TrapObject trap = collision.transform.GetComponent<TrapObject>();
+
+            if (trap)
+            {
+                if (trap.type == TrapObject.TRIGGER_TYPE.DAMAGE)    //데미지 체크 트랩이다
+                    hp -= impluse;
+                else if (trap.type == TrapObject.TRIGGER_TYPE.DEATHLY)
+                    Death();
+            }
+            else if (impluse > deathlyForce)    //데미지 오브젝트가 아니더라도 우선 큰 충격에 죽음처리
                 Death();
 
-            //Debug.Log("relativeVelocity >>" + collision.relativeVelocity.magnitude + " >> " + collision.gameObject.name);
+            if (hp < 0)
+                Death();
+
             Debug.Log("Impulse >> " + collision.impulse.magnitude);
-
-            //즉사 오브젝트에 닿으면 죽음 처림 (태그로 구분)
-            if (DataModel.instance.deathlyTag.Contains(collision.transform.tag))
-                Death();
+            
         }
     }
 
     private void OnCollisionStay(Collision collision)
     {
+        if (isDeath) return;
         if (collision != null && collision.transform != null)
         {   //아무 오브젝트에 닿아있음
             isAirBon = false;
@@ -214,6 +234,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit(Collision collision)
     {
+        if (isDeath) return;
         if (collision != null && collision.transform != null)
         {
             //if(groundLayerIDs.Contains(collision.transform.gameObject.layer))
