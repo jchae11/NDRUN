@@ -18435,7 +18435,7 @@ MonoBehaviour:
   speed: 5
   jumpForce: 5
   airBonTime: 2
-  deathlyForce: 700
+  deathlyForce: 600
   distanseGround: 0.3
   maxHP: 500
   charRagdoll: {fileID: 1482704546574384546}
