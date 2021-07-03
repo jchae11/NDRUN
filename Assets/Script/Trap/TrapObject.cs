@@ -80,6 +80,6 @@ public class TrapObject : MonoBehaviour
             DataModel.instance.FinishGame(transform);
             actioned = true;
         }
-
+        
     }
 }

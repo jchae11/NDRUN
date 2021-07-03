@@ -156,13 +156,13 @@ public class PlayerController : MonoBehaviour
             moveTranslate.z -= 1;
         if ( ! Input.anyKey || moveTranslate.sqrMagnitude < 1)
             keyDownTime = 0f;
-
+        
         float runSpeed = Mathf.Min(keyDownTime, 1f) * speed;
-        transform.Translate(moveTranslate * runSpeed * Time.deltaTime);   //속도 완성 시간 1초
+        float magitude = (moveTranslate.sqrMagnitude > 0) ? moveTranslate.sqrMagnitude : 1;
+        transform.Translate((moveTranslate * runSpeed * Time.deltaTime) / magitude);   //속도 완성 시간 1초
 
         //회전
         if (moveTranslate != Vector3.zero)
-
             animator.transform.forward = moveTranslate;
 
         animator.SetFloat("Speed", runSpeed); 
@@ -211,15 +211,15 @@ public class PlayerController : MonoBehaviour
                     hp -= impluse;
                 else if (trap.type == TrapObject.TRIGGER_TYPE.DEATHLY)
                     Death();
+
+                if (hp < 0)
+                    Death();
             }
-            else if (impluse > deathlyForce)    //데미지 오브젝트가 아니더라도 우선 큰 충격에 죽음처리
+            else if (impluse > deathlyForce)    //데미지 오브젝트가 아니더라도 우선 큰 충격에 죽음처리 
+            {
+                Debug.Log("Impulse >> " + collision.impulse.magnitude);
                 Death();
-
-            if (hp < 0)
-                Death();
-
-            Debug.Log("Impulse >> " + collision.impulse.magnitude);
-            
+            }
         }
     }
 
@@ -245,6 +245,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnTriggerStay(Collider other)
+    {
+        if (isDeath) return;
+
+        TrapObject trap = other.GetComponent<TrapObject>();
+        if (trap.type == TrapObject.TRIGGER_TYPE.DEATHLY)
+            Death();
+    }
 
     #region 부가 기능
     //스킨 변경
